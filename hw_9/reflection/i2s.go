@@ -14,7 +14,7 @@ func i2s(data interface{}, out interface{}) error {
 	if structVal.Kind() == reflect.Ptr {
 		structVal = structVal.Elem()
 	} else {
-		return fmt.Errorf("bruh")
+		return fmt.Errorf("out is not ptr")
 	}
 
 	if mapVal.Kind() == reflect.Ptr {
@@ -25,53 +25,34 @@ func i2s(data interface{}, out interface{}) error {
 }
 
 func setMapValue(strcVal, mapVal reflect.Value) (err error) {
+	if mapVal.Kind() == reflect.Interface {
+		mapVal = mapVal.Elem()
+	}
+
 	if mapVal.IsValid() && strcVal.IsValid() {
 		kindStrcVal := strcVal.Kind()
 		kindMapVal := mapVal.Kind()
-		if kindMapVal == reflect.Interface {
-			kindMapVal = mapVal.Elem().Kind()
-		}
-		log.Println(kindStrcVal, kindMapVal)
 		isEqual := kindStrcVal == kindMapVal
 		switch {
 		case isEqual && kindStrcVal == reflect.String:
-			if mapVal.Kind() == reflect.Interface {
-				mapVal = mapVal.Elem()
-			}
 			strcVal.SetString(mapVal.String())
 		case isEqual && kindStrcVal == reflect.Int:
-			if mapVal.Kind() == reflect.Interface {
-				mapVal = mapVal.Elem()
-			}
 			strcVal.SetInt(mapVal.Int())
 		case kindStrcVal == reflect.Int && kindMapVal == reflect.Float64:
-			if mapVal.Kind() == reflect.Interface {
-				mapVal = mapVal.Elem()
-			}
 			intMapVal := int(mapVal.Float())
 			strcVal.SetInt(int64(intMapVal))
 		case isEqual && kindStrcVal == reflect.Bool:
-			if mapVal.Kind() == reflect.Interface {
-				mapVal = mapVal.Elem()
-			}
 			strcVal.SetBool(mapVal.Bool())
 		case isEqual && kindStrcVal == reflect.Slice:
-			if mapVal.Kind() == reflect.Interface {
-				mapVal = mapVal.Elem()
-			}
 			strcVal.Set(reflect.MakeSlice(reflect.SliceOf(strcVal.Type().Elem()), mapVal.Len(), mapVal.Len()))
 			for i := 0; i < mapVal.Len(); i++ {
 				v := mapVal.Index(i)
-				// log.Printf("%v", v.Elem().Kind())
 				curErr := setMapValue(strcVal.Index(i), v)
 				if curErr != nil {
 					err = curErr
 				}
 			}
 		case isEqual && kindStrcVal == reflect.Struct:
-			if mapVal.Kind() == reflect.Interface {
-				mapVal = mapVal.Elem()
-			}
 			for i := 0; i < strcVal.NumField(); i++ {
 				curErr := setMapValue(strcVal.Field(i), mapVal.FieldByName(strcVal.Type().Field(i).Name))
 				if curErr != nil {
@@ -79,9 +60,6 @@ func setMapValue(strcVal, mapVal reflect.Value) (err error) {
 				}
 			}
 		case kindStrcVal == reflect.Struct && kindMapVal == reflect.Map:
-			if mapVal.Kind() == reflect.Interface {
-				mapVal = mapVal.Elem()
-			}
 			for i := 0; i < strcVal.NumField(); i++ {
 				curFieldName := strcVal.Type().Field(i).Name
 				field := strcVal.Field(i)
@@ -93,8 +71,7 @@ func setMapValue(strcVal, mapVal reflect.Value) (err error) {
 				}
 			}
 		default:
-			err = fmt.Errorf("bruh")
-			log.Printf("unknown type: %s, %s, %v", kindStrcVal.String(), kindMapVal.String(), err)
+			err = fmt.Errorf("can't candle these types")
 		}
 	}
 
