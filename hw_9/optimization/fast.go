@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"fmt"
 	users "go_hw/hw_9/optimization/models"
 	"io"
@@ -35,9 +34,9 @@ func FastSearch(out io.Writer) {
 	foundUsers := ""
 
 	tmpUser := users.User{}
- 	i := 0
+	i := 0
 	for s.Scan() {
-		err := json.Unmarshal(s.Bytes(), &tmpUser)
+		err := tmpUser.UnmarshalJSON(s.Bytes())
 		if err != nil {
 			panic(err)
 		}
