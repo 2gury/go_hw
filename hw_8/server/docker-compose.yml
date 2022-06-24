@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./monitoring:/etc/prometheus"
+
+  alertmanager:
+    image: prom/alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - "./alertmanager:/etc/alertmanager"
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+
+  alertmanager-bot:
+    image: metalmatze/alertmanager-bot
+    command:
+      - "--listen.addr=0.0.0.0:8080"
+    environment:
+      ALERTMANAGER_URL: http://alertmanager:9093
+      BOLT_PATH: /data/bot.db
+      STORE: bolt
+      TEMPLATE_PATHS: /templates/default.tmpl
+      TELEGRAM_ADMIN: 5257609377
+      TELEGRAM_TOKEN: 5565158635:AAGfGkXiiKLkTXGarrodu_y9uWHsxzmOxr8
+
+    volumes:
+      - "./alertmanager-bot/templates:/templates"
+
+
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"
+
+
+

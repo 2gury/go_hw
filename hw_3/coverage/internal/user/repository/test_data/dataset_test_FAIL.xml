@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+  <row>
+    <id>0</id>
+    <guid>1a6fa827-62f1-45f6-b579-aaead2b47169</guid>
+    <isActive>false</isActive>
+    <balance>$2,144.93</balance>
+    <picture>http://placehold.it/32x32</picture>
+    <age>22</age>
+    <eyeColor>green</eyeColor>
+    <first_name>Boyd</first_name>
+    <last_name>Wolf</last_name>
